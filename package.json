@@ -15,5 +15,14 @@
   "bugs": {
     "url": "https://github.com/ashleytowner/webserver/issues"
   },
-  "homepage": "https://github.com/ashleytowner/webserver#readme"
+  "homepage": "https://github.com/ashleytowner/webserver#readme",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.48.2",
+    "@typescript-eslint/parser": "^5.48.2",
+    "eslint": "^8.32.0"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2"
+  }
 }
