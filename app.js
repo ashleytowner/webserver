@@ -8,7 +8,21 @@ const { execSync } = require('child_process');
 
 const app = express();
 
+let isUsingHTTPS = true;
+
 config();
+
+app.use((req, res, next) => {
+  if (req.protocol !== 'https' && isUsingHTTPS) {
+    return res.redirect(`https://${req.headers.host}${req.url}`);
+  }
+  return next();
+});
+
+app.use((req, _, next) => {
+  console.log(`${req.method} ${req.url} from ${req.ip}`);
+  return next();
+});
 
 app.use(express.json({
   verify: (req, _, buf, encoding) => {
@@ -17,6 +31,8 @@ app.use(express.json({
     }
   },
 }));
+
+app.use(express.static('public'));
 
 function verifyPostData(req, res, next) {
   if (!(process.env.SECRET && process.env.SIG_HEADER_NAME && process.env.SIG_HASH_ALG)) {
@@ -42,6 +58,10 @@ function verifyPostData(req, res, next) {
 
   return next();
 }
+
+app.get('/', (req, res) => {
+  res.send(`Welcome ${req.ip}`);
+});
 
 app.post('/update', verifyPostData, (_, res) => {
   try {
@@ -73,10 +93,13 @@ try {
   const credentials = { key: privateKey, cert: certificate };
   const httpsServer = https.createServer(credentials, app);
   httpsServer.listen(httpsPort, () => {
+    isUsingHTTPS = true;
     console.log(`HTTPS Server listening on port ${httpsPort}`);
   });
 } catch (ex) {
+  isUsingHTTPS = false;
   console.error('Certificates not found. Not using HTTPS');
+  if (process.env.NODE_ENV === 'production') process.exit();
 }
 
 const httpServer = http.createServer(app);
