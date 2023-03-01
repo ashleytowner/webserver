@@ -40,7 +40,7 @@ app.use(express.json({
 	},
 }));
 
-app.use(express.static('src/public'));
+app.use(express.static('public'));
 
 function verifyPostData(req: express.Request, res: express.Response, next: express.NextFunction) {
 	if (!(process.env.SECRET && process.env.SIG_HEADER_NAME && process.env.SIG_HASH_ALG)) {
